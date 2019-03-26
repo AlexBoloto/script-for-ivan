@@ -35,9 +35,15 @@ def maintain_df(data_frame,zhk):
     data_frame = data_frame[data_frame['service'] == zhk]
     print(data_frame.head())
     #data_frame.to_csv(zhk + 'МАЙ.csv', sep=';', encoding='cp1251', decimal=',', float_format='%.2f', index=False)
+    data_frame = data_frame[data_frame['Код объекта'].apply(lambda x : 'F' not in x)]
+    #data_frame.to_csv('DF' + '.csv', sep=';', encoding='cp1251', decimal=',', float_format='%.2f', index=False)
     for i in range(len(data_frame)):
         if (data_frame.iloc[i, data_frame.columns.get_loc('service')] == 'Н'):
-           data_frame.iloc[i, data_frame.columns.get_loc('Код объекта')] = 'Новокрасково, корп. %d, кв.%d' % (int(data_frame.iloc[i, 0][3:4]), int(data_frame.iloc[i, 0][14:]))
+           try:
+               data_frame.iloc[i, data_frame.columns.get_loc('Код объекта')] = 'Новокрасково, корп. %d, кв.%d' % (int(data_frame.iloc[i, 0][3:4]), int(data_frame.iloc[i, 0][14:]))
+           except:
+               print('dich')
+               pass
         elif (data_frame.iloc[i, data_frame.columns.get_loc('service')] == 'В'):
             if (data_frame.iloc[i, 0][:6] == 'ВБ-5,1' or data_frame.iloc[i, 0][:6] == 'ВБ-5,2'):
                 data_frame.iloc[i, 0] = 'Видный берег, корп. 5, кв.%d' % (int(data_frame.iloc[i, 0][16:]))
@@ -60,7 +66,7 @@ def merge(data_frame, file):
     prev_df.rename(columns={'Название':'Код объекта'},inplace=True)
     mer_df = pd.merge(prev_df, data_frame, how='left', on='Код объекта')
     #mer_df.to_csv('result-ВВ'+ '.csv', sep=';', encoding='cp1251', decimal=',', float_format='%.2f', index=False)
-    for i in range(len(mer_df)):
+    for i in range(len(mer_df)-9):
         if(pd.isnull(mer_df.iloc[i,mer_df.columns.get_loc('Цена_y')])):
             mer_df.iloc[i, mer_df.columns.get_loc('Цена_y')]=float(mer_df.iloc[i, mer_df.columns.get_loc('Цена_x')].replace(",", "."))
         if(pd.isnull(mer_df.iloc[i,mer_df.columns.get_loc('Площадь_y')])):
